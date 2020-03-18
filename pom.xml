@@ -40,6 +40,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- fastJson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.47</version>
+        </dependency>
+
     </dependencies>
 
     <build>
