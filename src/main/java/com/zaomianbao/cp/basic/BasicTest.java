@@ -1,7 +1,7 @@
-package com.zaomianbao.cp.lesson01;
+package com.zaomianbao.cp.basic;
 
 import com.alibaba.fastjson.JSON;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -11,7 +11,8 @@ import java.util.concurrent.*;
  * @Author zaomianbao
  * @Date 2020/3/17
  **/
-public class Lesson01Test {
+@Slf4j
+public class BasicTest {
 
     public static void main(String[] args) {
 
@@ -27,12 +28,13 @@ public class Lesson01Test {
         Future<Integer> future = service.submit(new CallableTask());
         try {
             Integer value = future.get();
-            System.out.println(value);
+            log.info(value.toString());
             service.shutdown();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
+            Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
 
         //Future模式实现类似CountDownLatch的功能
@@ -42,28 +44,25 @@ public class Lesson01Test {
                 new ThreadPoolExecutor.CallerRunsPolicy());
         // 存放Future<>的集合
         List<Future<RunResult>> list = new ArrayList<>(12);
-        // 线程同步器
-        CountDownLatch main = new CountDownLatch(12);
         for (int i = 1; i <= 12; i++) {
             RunResult result = new RunResult();
             result.setParam(i);
-            MyCallable callable = new MyCallable(result,main);
+            MyCallable callable = new MyCallable(result);
             Future<RunResult> runResultFuture = threadPool.submit(callable);
             list.add(runResultFuture);
         }
         try {
-            //main.await();
             for (int i = 0; i < list.size(); i++) {
                 RunResult runResult = list.get(i).get();
-                System.out.println(JSON.toJSON(runResult));
+                log.info(JSON.toJSON(runResult).toString());
             }
             // 线程池不用了，关闭线程池
             threadPool.shutdown();
-            //threadPool.shutdownNow();
         } catch (InterruptedException e) {
-
+            log.error(e.getMessage(),e);
+            Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-
+            log.error(e.getMessage(),e);
         }
 
     }
